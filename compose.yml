@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: thirdweb-engine-core
+    container_name: thirdweb-engine-core-oss
     ports:
       - "3069:3069"
     environment:
