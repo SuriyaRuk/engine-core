@@ -16,7 +16,7 @@ services:
       retries: 3
     restart: always
 
-  thirdweb-engine:
+  thirdweb-engine-core:
     build:
       context: .
       dockerfile: Dockerfile
