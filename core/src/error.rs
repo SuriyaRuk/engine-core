@@ -247,26 +247,6 @@ pub enum EngineError {
     InternalError { message: String },
 }
 
-impl From<vault_sdk::error::VaultError> for EngineError {
-    fn from(err: vault_sdk::error::VaultError) -> Self {
-        let message = match &err {
-            vault_sdk::error::VaultError::EnclaveError {
-                code,
-                message,
-                details,
-            } => match details {
-                Some(details) => format!(
-                    "Enclave error: {} - {} - details: {}",
-                    code, message, details
-                ),
-                None => format!("Enclave error: {} - {}", code, message),
-            },
-            _ => err.to_string(),
-        };
-
-        EngineError::VaultError { message }
-    }
-}
 
 impl From<InvalidHeaderValue> for EngineError {
     fn from(err: InvalidHeaderValue) -> Self {

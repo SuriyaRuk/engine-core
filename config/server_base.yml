@@ -1,0 +1,23 @@
+# server/configuration/server_local.yaml
+server:
+  host: "0.0.0.0"
+  port: 3069
+
+thirdweb:
+  secret: "your_thirdweb_secret_key"
+  client_id: "your_thirdweb_client_id"
+  urls:
+    vault: "https://vault.ruk.solutions"
+    bundler: "bundler.ruk.solutions" 
+    paymaster: "bundler.ruk.solutions"
+
+redis:
+  url: "redis://localhost:6379"
+
+queue:
+  webhook_workers: 50
+  external_bundler_send_workers: 20
+  userop_confirm_workers: 10
+  local_concurrency: 100
+  polling_interval_ms: 100
+  lease_duration_seconds: 600

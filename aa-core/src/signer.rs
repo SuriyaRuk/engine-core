@@ -13,7 +13,7 @@ use engine_core::{
     signer::{AccountSigner, EoaSigner, EoaSigningOptions, Erc4337SigningOptions},
 };
 use serde::Serialize;
-use vault_types::enclave::encrypted::eoa::MessageFormat;
+use engine_core::auth::MessageFormat;
 
 use crate::{
     account_factory::{AccountFactory, get_account_factory},
@@ -328,7 +328,7 @@ impl<C: Chain + Clone> SmartAccountSigner<C> {
 
         // Get signature with appropriate factory pattern handling
         let signature = self
-            .sign_message_with_factory_pattern(message, format)
+            .sign_message_with_factory_pattern(message, format.clone())
             .await?;
 
         if is_deployed {

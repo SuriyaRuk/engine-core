@@ -1,0 +1,67 @@
+services:
+
+  redis:
+    image: redis:7-alpine
+    container_name: thirdweb-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis_data:/data
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+    command: redis-server /usr/local/etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: always
+
+  thirdweb-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: thirdweb-engine-core
+    ports:
+      - "3069:3069"
+    environment:
+      # Thirdweb Configuration
+      - APP__THIRDWEB__SECRET=${THIRDWEB_SECRET:-test}
+      - APP__THIRDWEB__CLIENT_ID=${THIRDWEB_CLIENT_ID:-test}
+      - APP__THIRDWEB__URLS__VAULT=https://vault.ruk.solutions
+      - APP__THIRDWEB__URLS__BUNDLER=bundler.ruk.solutions
+      - APP__THIRDWEB__URLS__PAYMASTER=bundler.ruk.solutions
+      
+      # Server Configuration
+      - APP__SERVER__HOST=0.0.0.0
+      - APP__SERVER__PORT=3069
+      
+      # Redis Configuration
+      - APP__REDIS__URL=redis://redis:6379
+      
+      # Queue Configuration
+      - APP__QUEUE__WEBHOOK_WORKERS=50
+      - APP__QUEUE__EXTERNAL_BUNDLER_SEND_WORKERS=20
+      - APP__QUEUE__USEROP_CONFIRM_WORKERS=10
+      - APP__QUEUE__LOCAL_CONCURRENCY=100
+      - APP__QUEUE__POLLING_INTERVAL_MS=100
+      - APP__QUEUE__LEASE_DURATION_SECONDS=600
+      
+      # Logging
+      - RUST_LOG="thirdweb_engine=debug,twmq=debug,engine_executors=debug"
+      - RUST_BACKTRACE=1
+      
+      # Environment
+      - APP_ENVIRONMENT=production
+    volumes:
+      - ./server/configuration:/app/server/configuration:ro
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3069/v1/api.json"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    restart: always

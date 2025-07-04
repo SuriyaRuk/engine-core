@@ -29,11 +29,8 @@ async fn main() -> anyhow::Result<()> {
         config::LogFormat::Pretty => subscriber.with(tracing_subscriber::fmt::layer()).init(),
     }
 
-    let vault_client = vault_sdk::VaultClient::builder(config.thirdweb.urls.vault)
-        .build()
-        .await?;
-
-    tracing::info!("Vault client initialized");
+    // Vault client has been replaced with engine_core::auth
+    tracing::info!("Vault client integration removed");
 
     let chains = Arc::new(ThirdwebChainService {
         secret_key: config.thirdweb.secret.clone(),
@@ -47,10 +44,9 @@ async fn main() -> anyhow::Result<()> {
     tracing::info!("IAW client initialized");
 
     let signer = Arc::new(UserOpSigner {
-        vault_client: vault_client.clone(),
         iaw_client: iaw_client.clone(),
     });
-    let eoa_signer = Arc::new(EoaSigner::new(vault_client.clone(), iaw_client));
+    let eoa_signer = Arc::new(EoaSigner::new(iaw_client));
 
     let queue_manager =
         QueueManager::new(&config.redis, &config.queue, chains.clone(), signer.clone()).await?;
@@ -72,7 +68,6 @@ async fn main() -> anyhow::Result<()> {
         external_bundler_send_queue: queue_manager.external_bundler_send_queue.clone(),
         userop_confirm_queue: queue_manager.userop_confirm_queue.clone(),
         transaction_registry: queue_manager.transaction_registry.clone(),
-        vault_client: Arc::new(vault_client.clone()),
         chains: chains.clone(),
     };
 
@@ -80,7 +75,6 @@ async fn main() -> anyhow::Result<()> {
         userop_signer: signer.clone(),
         eoa_signer: eoa_signer.clone(),
         abi_service: Arc::new(abi_service),
-        vault_client: Arc::new(vault_client),
         chains,
         execution_router: Arc::new(execution_router),
         queue_manager: Arc::new(queue_manager),

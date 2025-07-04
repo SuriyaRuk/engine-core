@@ -6,7 +6,7 @@ use axum::{
 };
 use engine_core::{chain::RpcCredentials, credentials::SigningCredential, error::EngineError};
 use thirdweb_core::auth::ThirdwebAuth;
-use vault_types::enclave::auth::Auth;
+use engine_core::auth::Auth;
 
 use crate::http::error::ApiEngineError;
 

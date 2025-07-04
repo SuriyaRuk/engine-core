@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use thirdweb_core::auth::ThirdwebAuth;
 use thirdweb_core::iaw::AuthToken;
-use vault_types::enclave::auth::Auth;
+use crate::auth::Auth;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum SigningCredential {

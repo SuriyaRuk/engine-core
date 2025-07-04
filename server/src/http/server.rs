@@ -7,7 +7,7 @@ use tokio::{sync::watch, task::JoinHandle};
 use utoipa::OpenApi;
 use utoipa_axum::{router::OpenApiRouter, routes};
 use utoipa_scalar::{Scalar, Servable};
-use vault_sdk::VaultClient;
+// VaultClient removed, replaced with engine_core::auth
 
 use crate::{
     chains::ThirdwebChainService, execution_router::ExecutionRouter, queue::manager::QueueManager,
@@ -23,7 +23,7 @@ pub struct EngineServerState {
     pub userop_signer: Arc<UserOpSigner>,
     pub eoa_signer: Arc<EoaSigner>,
     pub abi_service: Arc<ThirdwebAbiService>,
-    pub vault_client: Arc<VaultClient>,
+    // vault_client removed, replaced with engine_core::auth
 
     pub execution_router: Arc<ExecutionRouter>,
     pub queue_manager: Arc<QueueManager>,

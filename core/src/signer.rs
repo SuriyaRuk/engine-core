@@ -6,8 +6,7 @@ use alloy::{
 use serde::{Deserialize, Serialize};
 use serde_with::{DisplayFromStr, PickFirst, serde_as};
 use thirdweb_core::iaw::IAWClient;
-use vault_sdk::VaultClient;
-use vault_types::enclave::encrypted::eoa::MessageFormat;
+use crate::auth::MessageFormat;
 
 use crate::{
     credentials::SigningCredential,
@@ -181,14 +180,13 @@ pub trait AccountSigner {
 /// EOA signer implementation
 #[derive(Clone)]
 pub struct EoaSigner {
-    pub vault_client: VaultClient,
     pub iaw_client: IAWClient,
 }
 
 impl EoaSigner {
     /// Create a new EOA signer
-    pub fn new(vault_client: VaultClient, iaw_client: IAWClient) -> Self {
-        Self { vault_client, iaw_client }
+    pub fn new(iaw_client: IAWClient) -> Self {
+        Self { iaw_client }
     }
 }
 
@@ -203,23 +201,10 @@ impl AccountSigner for EoaSigner {
         credentials: SigningCredential,
     ) -> Result<String, EngineError> {
         match credentials {
-            SigningCredential::Vault(auth_method) => {
-                let vault_result = self
-                    .vault_client
-                    .sign_message(
-                        auth_method.clone(),
-                        message.to_string(),
-                        options.from,
-                        options.chain_id,
-                        Some(format),
-                    )
-                    .await
-                    .map_err(|e| {
-                        tracing::error!("Error signing message with EOA (Vault): {:?}", e);
-                        e
-                    })?;
-
-                Ok(vault_result.signature)
+            SigningCredential::Vault(_auth_method) => {
+                Err(EngineError::ValidationError {
+                    message: "Vault signing is not supported in this build".to_string(),
+                })
             }
             SigningCredential::Iaw { auth_token, thirdweb_auth } => {
                 // Convert MessageFormat to IAW MessageFormat
@@ -256,17 +241,10 @@ impl AccountSigner for EoaSigner {
         credentials: SigningCredential,
     ) -> Result<String, EngineError> {
         match &credentials {
-            SigningCredential::Vault(auth_method) => {
-                let vault_result = self
-                    .vault_client
-                    .sign_typed_data(auth_method.clone(), typed_data.clone(), options.from)
-                    .await
-                    .map_err(|e| {
-                        tracing::error!("Error signing typed data with EOA (Vault): {:?}", e);
-                        e
-                    })?;
-
-                Ok(vault_result.signature)
+            SigningCredential::Vault(_auth_method) => {
+                Err(EngineError::ValidationError {
+                    message: "Vault signing is not supported in this build".to_string(),
+                })
             }
             SigningCredential::Iaw { auth_token, thirdweb_auth } => {
                 let iaw_result = self

@@ -13,7 +13,7 @@ use engine_core::{
 use futures::future::join_all;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use vault_types::enclave::encrypted::eoa::MessageFormat;
+use engine_core::auth::MessageFormat;
 
 use crate::http::{
     error::ApiEngineError,
@@ -119,7 +119,7 @@ async fn sign_single_message(
                 .sign_message(
                     eoa_options.clone(),
                     &message_input.message,
-                    message_input.format,
+                    message_input.format.clone(),
                     signing_credential.clone(),
                 )
                 .await
@@ -139,7 +139,7 @@ async fn sign_single_message(
                     {
                         Ok(smart_signer) => {
                             smart_signer
-                                .sign_message(&message_input.message, message_input.format)
+                                .sign_message(&message_input.message, message_input.format.clone())
                                 .await
                         }
                         Err(e) => Err(e),
